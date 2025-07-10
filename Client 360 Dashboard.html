@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Client360+ Dashboard - Phoenix Mills Limited</title>
+<style>
+.highlight {
+  background-color: #ffe066;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; color: #2d3748; margin: 0; }
+        .header { background: linear-gradient(135deg, #f97316 0%, #f59e0b 100%); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1);}
+        .logo { font-size: 1.5rem; font-weight: bold; }
+        .user-info { display: flex; align-items: center; gap: 1rem; }
+        .access-level { background: rgba(255,255,255,0.2); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.9rem; }
+        .main-container { display: flex; min-height: 100vh; }
+        .sidebar { width: 250px; background: white; border-right: 1px solid #e2e8f0; padding: 1rem; min-height: 100vh; }
+        .client-selector { margin-bottom: 2rem; }
+        .client-selector h3 { margin-bottom: 0.5rem; color: #4a5568; }
+        .client-search { width: 100%; padding: 0.8rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem; }
+        .selected-client { background: #f7fafc; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 6px; margin-top: 1rem; }
+        .client-name { font-weight: bold; color: #2d3748; }
+        .client-details { font-size: 0.8rem; color: #718096; margin-top: 0.3rem; }
+        .nav-menu { list-style: none; padding: 0; }
+        .nav-item { margin-bottom: 0.5rem; }
+        .nav-link { display: block; padding: 0.8rem 1rem; color: #4a5568; text-decoration: none; border-radius: 6px; transition: all 0.3s ease; position: relative; }
+        .nav-link.active { background: #f97316; color: white; }
+        .main-content { flex: 1; padding: 2rem; overflow-y: auto; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .dashboard-title { font-size: 1.8rem; font-weight: bold; color: #2d3748; }
+        .action-buttons { display: flex; gap: 1rem; }
+        .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease; }
+        .btn-primary { background: #f97316; color: white; }
+        .btn-secondary { background: #edf2f7; color: #4a5568; }
+        .main-tab { padding: 0.8rem 1.2rem; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.3s ease; color: #718096; font-size: 1.1rem; background: none; outline: none; }
+        .main-tab.active { color: #f97316; border-bottom-color: #f97316; font-weight: bold; }
+        .tab-section { display: none; }
+        .tab-section.active { display: block; }
+        .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+        .card { background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; margin-bottom: 2rem; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .card-title { font-size: 1.2rem; font-weight: bold; color: #2d3748; }
+        .snapshot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+        .metric { text-align: center; padding: 1rem; background: #f7fafc; border-radius: 6px; }
+        .metric-value { font-size: 1.5rem; font-weight: bold; color: #2d3748; }
+        .metric-label { font-size: 0.8rem; color: #718096; margin-top: 0.3rem; }
+        .subsidiary-list { list-style: none; padding: 0; margin: 0; }
+        .subsidiary-list li { padding: 0.7rem 1rem; background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 0.5rem; cursor: pointer; transition: background 0.2s; }
+        .subsidiary-list li:hover, .subsidiary-list li.active { background: #f97316; color: white; }
+        .subsidiary-panel { display: none; margin-top: 1rem; }
+        .subsidiary-panel.active { display: block; }
+        .tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 1rem; }
+        .tab { padding: 0.8rem 1.2rem; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.3s ease; color: #718096; }
+        .tab.active { color: #f97316; border-bottom-color: #f97316; }
+        .people-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+        .people-table th, .people-table td { border: 1px solid #e2e8f0; padding: 8px; text-align: left; }
+        .people-table th { background: #f4f4f4; }
+        .editable-pb { background: #eafaf1; }
+        .editable-lcg { background: #e0f2fe; }
+        .blurred { filter: blur(4px); pointer-events: none; user-select: none; opacity: 0.6; }
+        .timeline-list, .intelligence-list { list-style: none; padding: 0; }
+        .timeline-list li, .intelligence-list li { margin-bottom: 0.7rem; }
+        .family-tree-list { margin-top: 1rem; padding-left: 1.5rem; }
+        .flowchart-container { display: flex; justify-content: center; align-items: flex-start; margin: 2rem 0; }
+        .flowchart-block { background: #f7fafc; border: 2px solid #f97316; border-radius: 8px; padding: 1rem 2rem; margin: 0 1rem; text-align: center; min-width: 180px; font-weight: bold; color: #2d3748; position: relative; }
+        .flowchart-arrow { width: 60px; height: 2px; background: #f97316; position: relative; top: 35px; display: inline-block; }
+        .flowchart-arrow:after { content: ''; display: block; position: absolute; right: -6px; top: -5px; border-top: 7px solid transparent; border-bottom: 7px solid transparent; border-left: 12px solid #f97316; }
+        .vendor-list, .distributor-list, .branch-list { margin: 0.5rem 0 0 0; padding: 0; list-style: none; font-weight: normal; font-size: 0.97rem; }
+        .vendor-list li, .distributor-list li, .branch-list li { margin-bottom: 0.25rem; }
+        .trade-product { color: #16a34a; font-weight: bold; margin-left: 0.5rem; }
+        .no-trade-product { color: #d97706; font-weight: normal; margin-left: 0.5rem; }
+        @media (max-width: 900px) {
+            .content-grid { grid-template-columns: 1fr; }
+            .flowchart-container { flex-direction: column; align-items: stretch; }
+            .flowchart-arrow { display: none; }
+        }
+        .group-label { font-size: 1.15rem; font-weight: bold; color: #f97316; margin-bottom: 0.5rem; }
+    
+.people-table-wrapper {
+    overflow-x: auto;
+    font-size: 0.85rem;
+}
+</style>
+<script>
+        // All subsidiaries with demo data for dynamic overview/banking
+        const subsidiaries = [
+            { name: "Graceworks Realty & Leisure Pvt Ltd.", cin: "U72900MH2000PTC126232", sector: "Real Estate (Retail & Commercial)", revenue: "₹341 million", externalrating: "A-", accountStatus: "Active", totalExposure: "₹29320 million", relationship: "10 Years", currentoutstanding: "11033 million" },
+            { name: "Mindstone Mall Developers Pvt Ltd.", cin: "U70100MH2015PTC555555", sector: "Real Estate (Retail-Led Mixed Use)", revenue: " ", externalrating: "BBB+", accountStatus: "Active",totalExposure: "₹29320 million", relationship: "10 Years", currentoutstanding: "11033 million" },
+            { name: "Destiny Retail Mall Developers", cin: "U55101MH2002PLC987654", sector: "Real Estate (Mall & Retail Management)", revenue: " ", externalrating: "BBB+", accountStatus: "Active", totalExposure: "₹29320 million", relationship: "10 Years", currentoutstanding: "11033 million" },
+            { name: "Classic Mall Development Co.", cin: "U70100MH2011PTC111111", sector: "Real Estate (Commercial Property)", revenue: " ", externalrating: "BBB", accountStatus: "Active", totalExposure: "₹29320 million", relationship: "10 Years", currentoutstanding: "11033 million" },
+            { name: "Island Star Mall Developers", cin: "U70100MH2012PTC222222", sector: "Real Estate (Mall & Retail Management)", revenue: " ", externalrating: "A-", accountStatus: "Active", totalExposure: "₹29320 million", relationship: "10 Years", currentoutstanding: "11033 million" },
+            { name: "Thoth Mall & Commercial Real Estate Private Limited", cin: "U70100MH2013PTC333333", sector: "Real Estate (Mall Management & Project Development)", revenue: " ", externalrating: "BBB+", accountStatus: "Active", totalExposure: "₹29320 million", relationship: "10 Years", currentoutstanding: "11033 million"},
+            { name: "Alyssum Developers", cin: " U70109MH2017PTC292588", sector: "Real Estate and Renting", revenue: " ", externalrating: "BBB", accountStatus: "Active", totalExposure: "₹29320 million", relationship: "10 Years", currentoutstanding: "11033 million" },
+            { name: "Janus Logistics and Industrial Parks Pvt Ltd.", cin: "U63030MH2014PTC444444", sector: "Real Estate", revenue: " ", externalrating: "BBB-", accountStatus: "Active", totalExposure: "₹29320 million", relationship: "10 Years", currentoutstanding: "11033 million" },
+            { name: "Offbeat Developers Pvt Ltd.", cin: "U70100MH2016PTC666666", sector: "Real Estate", revenue: " ", externalrating: "BBB-", accountStatus: "Active", totalExposure: "₹29320 million", relationship: "10 Years", currentoutstanding: "11033 million"},
+            { name: "Vamona Developers Pvt Ltd.", cin: "U70100MH2017PTC777777", sector: "Real Estate", revenue: " ", externalrating: "BBB-", accountStatus: "Active", totalExposure: "₹29320 million", relationship: "10 Years", currentoutstanding: "11033 million" }
+        ];
+        const groupData = {
+            name: "Phoenix Mills Limited",
+            cin: "L17100MH1905PLC000200",
+            sector: "Real Estate, Retail-led Mixed Use",
+            revenue: "₹ 341 million",
+            externalrating: "AA",
+            accountStatus: "Active",
+            totalExposure: "₹29320 million",
+            relationship: "10 Years",
+            currentoutstanding: "11033 million",
+        };
+        document.addEventListener('DOMContentLoaded', function() {
+            // Main tab switching
+            const mainTabs = document.querySelectorAll('.main-tab');
+            const tabSections = document.querySelectorAll('.tab-section');
+            mainTabs.forEach((tab, idx) => {
+                tab.addEventListener('click', function() {
+                    mainTabs.forEach(t => t.classList.remove('active'));
+                    tabSections.forEach(s => s.classList.remove('active'));
+                    tab.classList.add('active');
+                    tabSections[idx].classList.add('active');
+                });
+            });
+
+            // Subsidiary selection for overview/banking relationship
+            const subList = document.getElementById('peopleSubsidiaryList');
+            const groupLabel = document.getElementById('groupLabel');
+            const overview = document.getElementById('overviewSection');
+            const banking = document.getElementById('bankingSection');
+            function renderOverview(data) {
+                overview.innerHTML = `
+                    <div class="group-label">${groupLabel.textContent}</div>
+                    <div class="snapshot-grid">
+                        <div class="metric">
+                            <div class="metric-value">${data.revenue}</div>
+                            <div class="metric-label">Revenue</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">${data.externalrating}</div>
+                            <div class="metric-label">External Rating</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">${data.accountStatus}</div>
+                            <div class="metric-label">Account Status</div>
+                        </div>
+                    </div>
+                    <table style="width:100%; margin-top:1rem;">
+                        <tr><th align="left">Company Name</th><td>${data.name}</td></tr>
+                        <tr><th align="left">CIN</th><td>${data.cin}</td></tr>
+                        <tr><th align="left">Sector</th><td>${data.sector}</td></tr>
+                    </table>
+                `;
+            }
+            function renderBanking(data) {
+                banking.innerHTML = `
+                    <div class="snapshot-grid">
+                        <div class="metric">
+                            <div class="metric-value">${data.totalExposure}</div>
+                            <div class="metric-label">Total Exposure</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">${data.relationship}</div>
+                            <div class="metric-label">Relationship</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">${data.currentoutstanding}</div>
+                            <div class="metric-label">Current Outstanding</div>
+                        </div>
+                    </div>
+<div class="banking-relationship">
+  <p>
+  
+    <span class="highlight">MIB Retail: 220 million</span> <br>
+    <span class="highlight">MIB Corporate: 1504 million</span>.<br>
+<br>
+  All subsidiaries follow the overall group banking relationship
+  </p>
+</div>
+                `;
+            }
+            // Default: group
+            groupLabel.textContent = "Group: Phoenix Mills Limited";
+            renderOverview(groupData);
+            renderBanking(groupData);
+            // Subsidiary click
+            subList.querySelectorAll('li').forEach((li, idx) => {
+                li.addEventListener('click', function() {
+                    subList.querySelectorAll('li').forEach(l => l.classList.remove('active'));
+                    li.classList.add('active');
+                    if (idx < subsidiaries.length) {
+                        groupLabel.textContent = "Group: Phoenix Mills Limited";
+                        renderOverview(subsidiaries[idx]);
+                        renderBanking(subsidiaries[idx]);
+                    } else {
+                        groupLabel.textContent = "Group: Phoenix Mills Limited";
+                        renderOverview(groupData);
+                        renderBanking(groupData);
+                    }
+                });
+            });
+            subList.querySelector('li').classList.add('active');
+            // Team access logic for products
+            const teamSelect = document.getElementById('teamSelect');
+            const corpMetrics = document.querySelectorAll('.corp-metric');
+            const corpAccess = document.getElementById('corpAccess');
+            const currentTeam = document.getElementById('currentTeam');
+            function setProductAccess() {
+                let team = teamSelect.value;
+                currentTeam.textContent = team + " Team";
+                corpMetrics.forEach(m => m.classList.remove('blurred'));
+                corpMetrics.forEach(m => m.setAttribute('contenteditable', false));
+                corpAccess.textContent = '';
+                if (team === 'LCG') {
+                    corpAccess.textContent = 'Full Access (LCG Team)';
+                    corpMetrics.forEach(m => m.setAttribute('contenteditable', true));
+                } else if (team === 'Private Banking') {
+                    corpAccess.textContent = 'Restricted (Private Banking Team)';
+                    corpMetrics.forEach(m => m.classList.add('blurred'));
+                } else if (team === 'FSG & Treasury' || team === 'Trade Finance') {
+                    corpAccess.textContent = 'Restricted (' + team + ')';
+                    corpMetrics.forEach(m => m.classList.add('blurred'));
+                } else if (team === 'Digital/Analytics') {
+                    corpAccess.textContent = 'View Only (Digital/Analytics)';
+                    corpMetrics.forEach(m => m.classList.add('blurred'));
+                }
+            }
+            setProductAccess();
+            teamSelect.addEventListener('change', setProductAccess);
+            // People Map - Subsidiary panel logic
+            const peopleSubsidiaryList2 = document.getElementById('peopleSubsidiaryList2');
+            const panels = document.querySelectorAll('.subsidiary-panel');
+            peopleSubsidiaryList2.querySelectorAll('li').forEach((li, idx) => {
+                li.addEventListener('click', function() {
+                    peopleSubsidiaryList2.querySelectorAll('li').forEach(l => l.classList.remove('active'));
+                    li.classList.add('active');
+                    panels.forEach(panel => panel.classList.remove('active'));
+                    if (panels[idx]) panels[idx].classList.add('active');
+                });
+            });
+            peopleSubsidiaryList2.querySelector('li').classList.add('active');
+            panels[0].classList.add('active');
+            // Tab logic inside each subsidiary panel
+            document.querySelectorAll('.tabs').forEach(tabBar => {
+                const tabs = tabBar.querySelectorAll('.tab');
+                const tabContents = tabBar.parentElement.querySelectorAll('.tab-content');
+                tabs.forEach((tab, idx) => {
+                    tab.addEventListener('click', function() {
+                        tabs.forEach(t => t.classList.remove('active'));
+                        tabContents.forEach(tc => tc.style.display = 'none');
+                        tab.classList.add('active');
+                        tabContents[idx].style.display = 'block';
+                    });
+                });
+                if (tabs.length > 0) tabs[0].classList.add('active');
+                if (tabContents.length > 0) tabContents[0].style.display = 'block';
+            });
+        });
+    </script>
+</head>
+<body>
+<div class="header">
+<div class="logo">Client360+ Platform</div>
+<div class="user-info">
+<span>John Doe - <span id="currentTeam">LCG Team</span></span>
+</div>
+</div>
+<div class="main-container">
+<div class="sidebar">
+<div class="client-selector">
+<h3>View As Team:</h3>
+<select id="teamSelect">
+<option>LCG</option>
+<option>Private Banking</option>
+<option>FSG &amp; Treasury</option>
+<option>Trade Finance</option>
+<option>Digital/Analytics</option>
+</select>
+</div>
+<div class="client-selector">
+<h3>Select Client</h3>
+<input class="client-search" placeholder="Search by Name or UCC" type="text" value="Phoenix Mills Limited"/>
+<div class="selected-client">
+<div class="client-name">Phoenix Mills Limited</div>
+<div class="client-details">
+                        CIN: L17100MH1905PLC000200<br/>
+                        listed | Market Cap: ₹ 560.10 billion | Share Price: ₹1,566.60<br/>
+                        External Rating: AA | Sector: Real Estate, Retail-led Mixed Use
+                    </div>
+</div>
+</div>
+<ul class="nav-menu">
+<li class="nav-item"><a class="nav-link main-tab active" href="javascript:void(0);">Client Snapshot</a></li>
+<li class="nav-item"><a class="nav-link main-tab" href="javascript:void(0);">People Map</a></li>
+<li class="nav-item"><a class="nav-link main-tab" href="javascript:void(0);">Engagement Timeline</a></li>
+<li class="nav-item"><a class="nav-link main-tab" href="javascript:void(0);">Product Holdings</a></li>
+<li class="nav-item"><a class="nav-link main-tab" href="javascript:void(0);">Value Chain View</a></li>
+<li class="nav-item"><a class="nav-link main-tab" href="javascript:void(0);">Intelligence Feed</a></li>
+</ul>
+</div>
+<div class="main-content">
+<div class="dashboard-header">
+<div class="dashboard-title">Client Dashboard</div>
+<div class="action-buttons">
+<button class="btn btn-secondary">Export Report</button>
+<button class="btn btn-primary">Add Note</button>
+<button class="btn btn-primary">Create Alert</button>
+</div>
+</div>
+<!-- Client Snapshot Tab -->
+<div class="tab-section active">
+<div class="group-label" id="groupLabel">Group: Phoenix Mills Limited</div>
+<div class="content-grid">
+<div class="card">
+<div class="card-header"><div class="card-title">Company Overview</div></div>
+<div id="overviewSection"></div>
+</div>
+<div class="card">
+<div class="card-header"><div class="card-title">Group Banking Relationship</div></div>
+<div id="bankingSection"></div>
+</div>
+</div>
+<div class="card">
+<div class="card-header"><div class="card-title">Subsidiaries</div></div>
+<ul class="subsidiary-list" id="peopleSubsidiaryList" style="max-width:400px;">
+<li>Graceworks Realty & Leisure Pvt Ltd.</li>
+<li>Mindstone Mall Developers Pvt Ltd.</li>
+<li>Destiny Retail Mall Developers</li>
+<li>Classic Mall Development Co.</li>
+<li>Island Star Mall Developers</li>
+<li>Thoth Mall & Commercial Real Estate Private Limited</li>
+<li>Alyssum Developers</li>
+<li>Janus Logistics and Industrial Parks Pvt Ltd.</li>
+<li>Offbeat Developers Pvt Ltd.</li>
+<li>Vamona Developers Pvt Ltd.</li>
+</ul>
+</div>
+</div>
+<!-- People Map Tab -->
+<div class="tab-section">
+<div class="card">
+<div class="card-header"><div class="card-title">People Map</div></div>
+<div style="display:flex; gap:2rem;">
+<ul class="subsidiary-list" id="peopleSubsidiaryList2" style="min-width:260px;">
+<li>Graceworks Realty & Leisure Pvt Ltd.</li>
+<li>Mindstone Mall Developers Pvt Ltd.</li>
+<li>Destiny Retail Mall Developers</li>
+<li>Classic Mall Development Co.</li>
+<li>Island Star Mall Developers</li>
+<li>Thoth Mall & Commercial Real Estate Private Limited</li>
+<li>Alyssum Developers</li>
+<li>Janus Logistics and Industrial Parks Pvt Ltd.</li>
+<li>Offbeat Developers Pvt Ltd.</li>
+<li>Vamona Developers Pvt Ltd.</li>
+</ul>
+<div style="flex:1;">
+<!-- 10 panels for 10 subsidiaries, all with functional tabs -->
+<!-- Example shown for first, copy/paste for all 10 (names/titles kept same for demo) -->
+<div class="subsidiary-panel">
+<div class="tabs">
+<div class="tab">Promoters</div>
+<div class="tab">CXOs</div>
+<div class="tab">Board Members</div>
+</div>
+<div class="tab-content">
+<div class="people-table-wrapper" style="overflow-x:auto; max-width: 100vw;">
+  <table class="people-table">
+    <tr>
+      <th>Attribute</th>
+      <th>Atul Ruia</th>
+      <th>Gayatri Ruia</th>
+    </tr>
+    <tr><td>Net Worth (₹ Cr)</td><td>To be filled by Pvt. Banking/LCG Team</td><td>To be filled by Pvt. Banking/LCG Team</td></tr>
+    <tr><td>Shareholding (%)</td><td>To be filled by Pvt. Banking/LCG Team</td><td>To be filled by Pvt. Banking/LCG Team</td></tr>
+    <tr><td>Client Category (PB/FO)</td><td>To be filled by Pvt. Banking Team</td><td>To be filled by Pvt. Banking Team</td></tr>
+    <tr><td>Private Banking RM</td><td>To be filled by Pvt. Banking Team</td><td>To be filled by Pvt. Banking Team</td></tr>
+    <tr><td>LCG RM</td><td>To be filled by LCG Team</td><td>To be filled by LCG Team</td></tr>
+    <tr><td>Last Modified By</td><td> </td><td> </td></tr>
+    <tr><td>3-in-1 Account</td><td>✘</td><td>✘</td></tr>
+    <tr><td>Credit Card</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Legacy</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Investments</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Insurance</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Savings Account</td><td>✘</td><td>✘</td></tr>
+  </table>
+</div>
+
+</div>
+<div class="tab-content">
+<div class="people-table-wrapper" style="overflow-x:auto; max-width: 100vw;">
+  <table class="people-table">
+    <tr>
+      <th>Attribute</th>
+      <th>Rashmi Sen</th>
+      <th>Haresh Morajkar</th>
+    </tr>
+    <tr><td>Role</td><td>CEO, Malls</td><td>Group Director &amp; CHRO</td></tr>
+    <tr><td>Salary (₹ Cr)</td><td>To be filled by Pvt. Banking/LCG Team</td><td>To be filled by Pvt. Banking/LCG Team</td></tr>
+    <tr><td>Client Category (PB/FO)</td><td>To be filled by Pvt. Banking Team</td><td>To be filled by Pvt. Banking Team</td></tr>
+    <tr><td>Private Banking RM</td><td>To be filled by Pvt. Banking Team</td><td>To be filled by Pvt. Banking Team</td></tr>
+    <tr><td>LCG RM</td><td>To be filled by LCG Team</td><td>To be filled by LCG Team</td></tr>
+    <tr><td>Last Modified By</td><td> </td><td> </td></tr>
+    <tr><td>3-in-1 Account</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Credit Card</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Legacy</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Investments</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Insurance</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Salary</td><td>✔</td><td>✘</td></tr>
+  </table>
+</div>
+
+</div>
+<div class="tab-content">
+<div class="people-table-wrapper" style="overflow-x:auto; max-width: 100vw;">
+  <table class="people-table">
+    <tr>
+      <th>Attribute</th>
+      <th>Archana Hingorani</th>
+      <th>Anand Khatau</th>
+    </tr>
+    <tr><td>Role</td><td>Director</td><td>Director</td></tr>
+    <tr><td>Salary (₹ Cr)</td><td>To be filled by Pvt. Banking/LCG Team</td><td>To be filled by Pvt. Banking/LCG Team</td></tr>
+    <tr><td>Client Category (PB/FO)</td><td>To be filled by Pvt. Banking Team</td><td>To be filled by Pvt. Banking Team</td></tr>
+    <tr><td>Private Banking RM</td><td>To be filled by Pvt. Banking Team</td><td>To be filled by Pvt. Banking Team</td></tr>
+    <tr><td>LCG RM</td><td>To be filled by LCG Team</td><td>To be filled by LCG Team</td></tr>
+    <tr><td>Last Modified By</td><td> </td><td> </td></tr>
+    <tr><td>3-in-1 Account</td><td>✘</td><td>✔</td></tr>
+    <tr><td>Credit Card</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Legacy</td><td>✘</td><td>✘</td></tr>
+    <tr><td>Investments</td><td>✔</td><td>✘</td></tr>
+    <tr><td>Insurance</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Salary</td><td>✔</td><td>✔</td></tr>
+  </table>
+</div>
+
+</div>
+<!-- Copy and paste the above .subsidiary-panel block 9 more times for the other subsidiaries to ensure all have functional tabs -->
+<div class="subsidiary-panel">
+<div class="tabs">
+<div class="tab">Promoters</div>
+<div class="tab">CXOs</div>
+<div class="tab">Board Members</div>
+</div>
+<div class="tab-content">
+<div class="people-table-wrapper" style="overflow-x:auto; max-width: 100vw;">
+  <table class="people-table">
+    <tr>
+      <th>Attribute</th>
+      <th>Atul Ruia</th>
+      <th>Gayatri Ruia</th>
+    </tr>
+    <tr><td>Net Worth (₹ Cr)</td><td>To be filled by Pvt. Banking/LCG Team</td><td>To be filled by Pvt. Banking/LCG Team</td></tr>
+    <tr><td>Shareholding (%)</td><td>To be filled by Pvt. Banking/LCG Team</td><td>To be filled by Pvt. Banking/LCG Team</td></tr>
+    <tr><td>Client Category (PB/FO)</td><td>To be filled by Pvt. Banking Team</td><td>To be filled by Pvt. Banking Team</td></tr>
+    <tr><td>Private Banking RM</td><td>To be filled by Pvt. Banking Team</td><td>To be filled by Pvt. Banking Team</td></tr>
+    <tr><td>LCG RM</td><td>To be filled by LCG Team</td><td>To be filled by LCG Team</td></tr>
+    <tr><td>Last Modified By</td><td> </td><td> </td></tr>
+    <tr><td>3-in-1 Account</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Credit Card</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Legacy</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Investments</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Insurance</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Savings Account</td><td>✘</td><td>✘</td></tr>
+  </table>
+</div>
+
+</div>
+<div class="tab-content">
+<div class="people-table-wrapper" style="overflow-x:auto; max-width: 100vw;">
+  <table class="people-table">
+    <tr>
+      <th>Attribute</th>
+      <th>Rashi Khandelwal</th>
+      <th>Ritesh Morajkar</th>
+    </tr>
+    <tr><td>Role</td><td>CEO, Malls</td><td>Group Director &amp; CHRO</td></tr>
+    <tr><td>Salary (₹ Cr)</td><td>To be filled by Pvt. Banking/LCG Team</td><td>To be filled by Pvt. Banking/LCG Team</td></tr>
+    <tr><td>Client Category (PB/FO)</td><td>To be filled by Pvt. Banking Team</td><td>To be filled by Pvt. Banking Team</td></tr>
+    <tr><td>Private Banking RM</td><td>To be filled by Pvt. Banking Team</td><td>To be filled by Pvt. Banking Team</td></tr>
+    <tr><td>LCG RM</td><td>To be filled by LCG Team</td><td>To be filled by LCG Team</td></tr>
+    <tr><td>Last Modified By</td><td> </td><td> </td></tr>
+    <tr><td>3-in-1 Account</td><td>✘</td><td>✘</td></tr>
+    <tr><td>Credit Card</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Legacy</td><td>✘</td><td>✘</td></tr>
+    <tr><td>Investments</td><td>✘</td><td>✔</td></tr>
+    <tr><td>Insurance</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Salary</td><td>✔</td><td>✘</td></tr>
+  </table>
+</div>
+
+</div>
+<div class="tab-content">
+<div class="people-table-wrapper" style="overflow-x:auto; max-width: 100vw;">
+  <table class="people-table">
+    <tr>
+      <th>Attribute</th>
+      <th>Khyati Saraogi</th>
+      <th>Anand Khatau</th>
+    </tr>
+    <tr><td>Role</td><td>Director</td><td>Director</td></tr>
+    <tr><td>Salary (₹ Cr)</td><td>To be filled by Pvt. Banking/LCG Team</td><td>To be filled by Pvt. Banking/LCG Team</td></tr>
+    <tr><td>Client Category (PB/FO)</td><td>To be filled by Pvt. Banking Team</td><td>To be filled by Pvt. Banking Team</td></tr>
+    <tr><td>Private Banking RM</td><td>To be filled by Pvt. Banking Team</td><td>To be filled by Pvt. Banking Team</td></tr>
+    <tr><td>LCG RM</td><td>To be filled by LCG Team</td><td>To be filled by LCG Team</td></tr>
+    <tr><td>Last Modified By</td><td>✔</td><td>✔</td></tr>
+    <tr><td>3-in-1 Account</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Credit Card</td><td>✘</td><td>✔</td></tr>
+    <tr><td>Legacy</td><td>✘</td><td>✘</td></tr>
+    <tr><td>Investments</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Insurance</td><td>✔</td><td>✔</td></tr>
+    <tr><td>Salary</td><td>✘</td><td>✔</td></tr>
+  </table>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="card-header"><div class="card-title">Promoter Family Tree: Ruia Family</div></div>
+<ul class="family-tree-list">
+<li><strong>Founder:</strong> Ramnarain Ruia (established Phoenix Mills in 1905)</li>
+<li><strong>Current Prominent Members:</strong>
+<ul>
+<li>Atul Ruia (Chairman)</li>
+<li>Gayatri Ruia(Development Director-Wife of Mr. Atul Ruia)</li>
+<li>Amla Ruia(Mother of Mr. Atul Ruia)</li>
+<li>Other family members involved in group companies</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<!-- Engagement Timeline Tab -->
+<div class="tab-section">
+<div class="card">
+<div class="card-header"><div class="card-title">Recent Engagements</div></div>
+<ul class="timeline-list">
+<li><strong>May 2025</strong> – Credit Review Meeting: Annual credit review completed, exposure maintained at ₹1,500 Cr</li>
+<li><strong>Apr 2025</strong> – Treasury Product Pitch: Pitched new treasury solutions for cash management</li>
+<li><strong>Mar 2025</strong> – Trade Finance Utilization: Processed LC worth ₹200 Cr for mall development</li>
+</ul>
+</div>
+</div>
+<!-- Product Holdings Tab -->
+<div class="tab-section">
+<div class="card">
+<div class="card-header"><div class="card-title">Corporate Products</div></div>
+<div class="snapshot-grid">
+<div class="metric">
+<div class="metric-value">₹907 million</div>
+<div class="metric-label">Term Loans</div>
+</div>
+<div class="metric selected">
+<div class="metric-value">-</div>
+<div class="metric-label">Working Capital</div>
+</div>
+<div class="metric">
+<div class="metric-value">₹1 million</div>
+<div class="metric-label">BG</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Value Chain View Tab -->
+<div class="tab-section">
+<div class="card">
+<div class="card-header"><div class="card-title">Value Chain Ecosystem</div></div>
+<div class="flowchart-container">
+<div class="flowchart-block">
+                        Suppliers<br/>
+<ul class="vendor-list">
+<li>Shapoorji Pallonji &amp; Co. <span class="trade-product">(Trade Product)</span></li>
+<li>Larsen &amp; Toubro <span class="trade-product">(Trade Product)</span></li>
+<li>Godrej Construction <span class="no-trade-product">(No Trade Product)</span></li>
+</ul>
+</div>
+<div class="flowchart-arrow"></div>
+<div class="flowchart-block">
+                        Phoenix Mills Limited
+                        <ul class="branch-list">
+<li>Promoters</li>
+<li>CXOs</li>
+<li>Board</li>
+</ul>
+</div>
+<div class="flowchart-arrow"></div>
+<div class="flowchart-block">
+                        Distributors/Partners
+                        <ul class="distributor-list">
+<li>PVR Cinemas <span class="trade-product">(Trade Product)</span></li>
+<li>Zara India <span class="no-trade-product">(No Trade Product)</span></li>
+<li>Shoppers Stop <span class="trade-product">(Trade Product)</span></li>
+</ul>
+</div>
+</div>
+<div style="font-size:0.98rem; margin-top:1rem;">
+<span class="trade-product">(Trade Product)</span> = Trade product (e.g., LC, BG, Invoice Finance) provided by Trade Finance Team<br/>
+<span class="no-trade-product">(No Trade Product)</span> = No trade product provided
+                </div>
+</div>
+</div>
+<!-- Intelligence Feed Tab -->
+<div class="tab-section">
+<div class="card">
+<div class="card-header"><div class="card-title">Latest Intelligence</div></div>
+<ul class="intelligence-list">
+<li><strong>Jun 2025</strong> – Q4 Results Declared: Phoenix Mills reports 10% YoY growth in revenue for Q4 FY25</li>
+<li><strong>May 2025</strong> – Credit Rating Reaffirmed: CRISIL maintains AA rating with stable outlook</li>
+<li><strong>Apr 2025</strong> – New Mall Launch: Opened new retail mall in Pune</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const peopleSubsidiaryList2 = document.getElementById('peopleSubsidiaryList2');
+    const panels = document.querySelectorAll('.subsidiary-panel');
+    peopleSubsidiaryList2.querySelectorAll('li').forEach((li, idx) => {
+        li.addEventListener('click', function () {
+            peopleSubsidiaryList2.querySelectorAll('li').forEach(l => l.classList.remove('active'));
+            li.classList.add('active');
+            panels.forEach(panel => panel.classList.remove('active'));
+            if (panels[idx]) panels[idx].classList.add('active');
+        });
+    });
+
+    panels.forEach(panel => {
+        const tabs = panel.querySelectorAll('.tab');
+        const contents = panel.querySelectorAll('.tab-content');
+        tabs.forEach((tab, idx) => {
+            tab.addEventListener('click', function () {
+                tabs.forEach(t => t.classList.remove('active'));
+                contents.forEach(c => c.style.display = 'none');
+                tab.classList.add('active');
+                contents[idx].style.display = 'block';
+            });
+        });
+        if (tabs.length > 0) tabs[0].classList.add('active');
+        if (contents.length > 0) contents[0].style.display = 'block';
+    });
+});
+</script></body>
+</html>
